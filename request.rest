@@ -1,0 +1,10 @@
+GET http://localhost:3000/book
+
+###
+POST http://localhost:3000/borrowing
+Content-Type: application/json
+
+{
+    "idBook": "5685804586",
+    "borrower": "Wonderboy"
+}

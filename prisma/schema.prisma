@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model BorrowedBook {
+  id         Int      @id @unique @default(autoincrement())
+  idBook     String      @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  borrower   String   
+}

@@ -44,7 +44,7 @@ export const borrowedProfile = async (req, res) =>{
     })
     res.status(200).json(data)
   }catch(e){
-    res.send(400).json({msg: e.message})
+    res.status(400).json({msg: e.message})
     console.log(e.message);
   }
 }

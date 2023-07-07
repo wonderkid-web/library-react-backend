@@ -9,8 +9,8 @@ datasource db {
 
 model BorrowedBook {
   id         Int      @id @unique @default(autoincrement())
-  idBook     String      @unique
+  idBook     String   @unique
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  borrower   String   
+  borrower   String
 }

@@ -18,12 +18,13 @@ export const getAllBorrowedBook = async (req, res) => {
 };
 
 export const borrowingBook = async (req, res) => {
-  const {idBook, borrower} = req.body
+  const {idBook, borrower, imgURL} = req.body
   try {
     const data = await prisma.BorrowedBook.create({
       data: {
         idBook,
-        borrower
+        borrower,
+        imgURL
       },
     });
     res.json({msg:"sukses"})

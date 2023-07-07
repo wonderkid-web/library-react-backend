@@ -8,10 +8,10 @@ datasource db {
 }
 
 model BorrowedBook {
-  id         Int      @id @unique @default(autoincrement())
-  idBook     String   @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  borrower   String
-  imgURL     String
+  id        Int      @id @unique @default(autoincrement())
+  idBook    String   @unique
+  borrow_at DateTime @default(now())
+  status    Boolean
+  borrower  String
+  imgURL    String
 }

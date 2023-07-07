@@ -18,13 +18,14 @@ export const getAllBorrowedBook = async (req, res) => {
 };
 
 export const borrowingBook = async (req, res) => {
-  const {idBook, borrower, imgURL} = req.body
+  const {idBook, borrower, imgURL, status} = req.body
   try {
     const data = await prisma.BorrowedBook.create({
       data: {
         idBook,
         borrower,
-        imgURL
+        imgURL,
+        status
       },
     });
     res.json({msg:"sukses"})
@@ -47,5 +48,20 @@ export const borrowedProfile = async (req, res) =>{
   }catch(e){
     res.status(400).json({msg: e.message})
     console.log(e.message);
+  }
+}
+
+export const changeStatus = async (req, res) =>{
+  const {idBook} = req.body
+  try{
+    const data = await prisma.borrowedBook.update({
+      where:{
+        idBook,
+      },data :{
+        status: false
+      }
+    })
+  }catch(e){
+    console.log(e.message)
   }
 }

@@ -11,7 +11,8 @@ model BorrowedBook {
   id        Int      @id @unique @default(autoincrement())
   idBook    String   @unique
   borrow_at DateTime @default(now())
-  status    Boolean
+  return_at String
+  status    Boolean @default(true)
   borrower  String
   imgURL    String
 }

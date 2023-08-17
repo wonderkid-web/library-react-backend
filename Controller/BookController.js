@@ -66,11 +66,14 @@ const prisma = new PrismaClient();
 
 export const getAllBorrowedBook = async (req, res) => {
   try {
-    const data = await prisma.BorrowedBook.findMany();
+    const data = await prisma.book.findMany();
+    const dataAPI = await fetch('https://www.dbooks.org/api/recent')
+    const {books} = await dataAPI.json()
     if (res.status(200)) {
       res.json({
         status: "Sukses",
-        details: data,
+        total: data.length + books.length,
+        details: [...data, ...books]
       });
     }
   } catch (e) {
@@ -78,6 +81,22 @@ export const getAllBorrowedBook = async (req, res) => {
     res.status(404).json({ msg: e.message });
   }
 };
+
+export const getAvailableBook = async (req, res) =>{
+  try{
+    const data = await prisma.book.findMany()
+    if(data){
+      res.status(200).json({
+        length: data.length,
+        data
+      })
+    }
+
+
+  }catch(e){
+    res.status(400).json({"error": e.message})
+  }
+} 
 
 export const borrowingBook = async (req, res) => {
   const { idBook, borrower, imgURL, status, return_at } = req.body;
@@ -174,5 +193,31 @@ export const getAllUser = async (req, res) =>{
     return res.status(200).json(allUser)
   }catch(e){
     console.error(e.message);
+  }
+}
+
+export const createBook = async (req, res) =>{
+  try{
+    const {data} = req.body
+    console.log(data)
+    const sampleBook = await prisma.book.create({
+      data: {
+        title: data.title,
+        authors: data.author,
+        bookId: data.bookId,
+        image: data.image,
+        stock: Number(data.stock),
+        category: data.category
+      }
+    })
+
+    if (res.status(200)) {
+      res.status(200).json({
+        status: "Sukses",
+      })
+    }
+  }catch(e){
+    res.status(404).json({msg: e.message})
+    console.log(e.message);
   }
 }

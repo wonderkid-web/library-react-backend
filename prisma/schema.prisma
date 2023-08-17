@@ -19,32 +19,39 @@ model BorrowedBook {
 }
 
 model User {
-  id   Int    @id @default(autoincrement())
-  name String
+  id    Int    @id @default(autoincrement())
+  name  String
   email String
-
   books Book[]
 }
 
 model Book {
-  id      Int    @id @default(autoincrement())
-  title   String
-  authors String
-  userId  Int
-  bookId  Int
+  id       Int     @id @default(autoincrement())
+  title    String
+  authors  String
+  userId   Int?
+  bookId   String
+  category String
+  image    String
+  stock    Int
+  borrowId Int?
 
-  user   User   @relation(fields: [userId], references: [id])
-  borrow Borrow @relation(fields: [bookId], references: [id])
+  user     User?   @relation(fields: [userId], references: [id])
+  borrow   Borrow? @relation(fields: [borrowId], references: [id])
 
   @@index([userId])
-  @@index([bookId])
+  @@index([borrowId])
+
 }
 
 model Borrow {
-  id Int @id @default(autoincrement())
-
+  id        Int      @id @default(autoincrement())
   borrow_at DateTime @default(now())
   done_at   DateTime
+  books     Book[]
+}
 
-  books Book[]
+model Category {
+  id       Int    @id @default(autoincrement())
+  category String
 }

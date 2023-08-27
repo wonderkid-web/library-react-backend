@@ -1,79 +1,17 @@
+import fs from "fs";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// export const getUser = async (req, res) => {
-  // const data = await prisma.borrow.findMany({
-  //   include:{
-  //     books:{
-  //       include:{
-  //         user: true
-  //       }
-  //     }
-  //   }
-  // });
-
-  // const data = await prisma.user.create({
-  //   data:{
-  //     name: 'SUPER ocha'
-  //   }
-  // });
-
-  // const data = await prisma.borrow.findMany({
-  //  where:{
-  //   books:{
-  //     every:{
-  //       user:{
-  //         name: "Wonderkid"
-  //       }
-  //     }
-  //   }
-  //  },
-  //  include:{
-  //   books:{
-  //     select:{
-  //       user:{
-  //         select:{
-  //           name: true
-  //         }
-  //       }
-  //     }
-  //   }
-  //  }
-  // });
-
-  // const data = await prisma.user.update({
-  //   where:{
-  //     id: 1
-  //   },
-  //   data:{
-  //     books:{
-  //       create:{
-  //         title: "FRONDEV DEV KKC SERIES",
-  //         authors: "KKC - ID",
-  //         borrow:{
-  //           create:{
-  //             done_at: new Date()
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // })
-
-//   return res.status(200).json({ msg: data });
-// };
-
-export const getAllBorrowedBook = async (req, res) => {
+// Buku dari API
+export const getApiBook = async (req, res) => {
   try {
-    const data = await prisma.book.findMany();
-    const dataAPI = await fetch('https://www.dbooks.org/api/recent')
-    const {books} = await dataAPI.json()
+    const data = await fetch('https://www.dbooks.org/api/recent')
     if (res.status(200)) {
       res.json({
         status: "Sukses",
-        total: data.length + books.length,
-        details: [...data, ...books]
+        total: data.length,
+        data
       });
     }
   } catch (e) {
@@ -82,21 +20,47 @@ export const getAllBorrowedBook = async (req, res) => {
   }
 };
 
-export const getAvailableBook = async (req, res) =>{
-  try{
-    const data = await prisma.book.findMany()
-    if(data){
+// Buku yang Terpinjam
+export const getAllBorrowedBook = async (req, res) => {
+  try {
+    const data = await prisma.book.findMany();
+    if (res.status(200)) {
+      res.json({
+        status: "Sukses",
+        total: data.length,
+        details: [...data],
+      });
+    }
+    // const data = await prisma.book.findMany();
+    // const dataAPI = await fetch("https://www.dbooks.org/api/recent");
+    // const { books } = await dataAPI.json();
+    // if (res.status(200)) {
+    //   res.json({
+    //     status: "Sukses",
+    //     total: data.length + books.length,
+    //     details: [...data, ...books],
+    //   });
+    // }
+  } catch (e) {
+    console.log(e.message);
+    res.status(404).json({ msg: e.message });
+  }
+};
+
+// Buku yang bisa di Delete dari Admin
+export const getAvailableBook = async (req, res) => {
+  try {
+    const data = await prisma.book.findMany();
+    if (data) {
       res.status(200).json({
         length: data.length,
-        data
-      })
+        data,
+      });
     }
-
-
-  }catch(e){
-    res.status(400).json({"error": e.message})
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
-} 
+};
 
 export const borrowingBook = async (req, res) => {
   const { idBook, borrower, imgURL, status, return_at } = req.body;
@@ -150,6 +114,30 @@ export const borrowedProfile = async (req, res) => {
   }
 };
 
+export const getAllLoan = async (req, res) => {
+  try {
+    const data = await prisma.borrow.findMany();
+
+    if (data) {
+      res.status(200).json(data);
+    }
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+};
+
+export const loaningBook = async (req, res) => {
+  try {
+    const data = await prisma.book.findMany();
+
+    if (data) {
+      res.status(200).json(data);
+    }
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+};
+
 export const changeStatus = async (req, res) => {
   const { idBook } = req.body;
   try {
@@ -166,40 +154,62 @@ export const changeStatus = async (req, res) => {
   }
 };
 
-
-export const createUser = async (req, res) =>{
-  const {name, email} = req.body;
-  try{
+// Ngebuat USER
+export const createUser = async (req, res) => {
+  const { name, email } = req.body;
+  try {
     const newUser = await prisma.user.create({
-      data:{
-        name, 
-        email
-      }
-    })
-    // console.log(name, email);
-  }catch(e){
-    console.log(e.message);
+      data: {
+        name,
+        email,
+      },
+    });
+
+    if (newUser) {
+      res.status(200).json({ msg: "User Baru berhasil di Tambah!" });
+    }
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
   }
-}
+};
 
-export const getAllUser = async (req, res) =>{
-  try{
+//ngambil SEMUA USER
+export const getAllUser = async (req, res) => {
+  try {
     const allUser = await prisma.user.findMany({
-      include:{
-        books: true
-      }
-    })
+      include: {
+        books: true,
+      },
+    });
 
-    return res.status(200).json(allUser)
-  }catch(e){
+    return res.status(200).json(allUser);
+  } catch (e) {
     console.error(e.message);
   }
-}
+};
 
-export const createBook = async (req, res) =>{
-  try{
-    const {data} = req.body
-    console.log(data)
+export const getUserById = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const user = await prisma.user.findMany({
+      where: {
+        id,
+      },
+    });
+
+    if (user) {
+      return res.status(200).json(user);
+    }
+  } catch (e) {
+    console.error(e.message);
+  }
+};
+
+//BUAT BUKU
+export const createBook = async (req, res) => {
+  try {
+    const { data } = req.body;
+    console.log(data);
     const sampleBook = await prisma.book.create({
       data: {
         title: data.title,
@@ -207,17 +217,59 @@ export const createBook = async (req, res) =>{
         bookId: data.bookId,
         image: data.image,
         stock: Number(data.stock),
-        category: data.category
-      }
-    })
+        category: data.category,
+      },
+    });
 
     if (res.status(200)) {
       res.status(200).json({
         status: "Sukses",
-      })
+      });
     }
-  }catch(e){
-    res.status(404).json({msg: e.message})
+  } catch (e) {
+    res.status(404).json({ msg: e.message });
     console.log(e.message);
   }
-}
+};
+
+//NGAPUS BUKU MELALUI ADMIN
+export const deleteBookById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleteBookData = await prisma.book.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (deleteBookData) {
+      res.status(200).json({ msg: "Berhasil di Delete" });
+    }
+  } catch (e) {
+    res.status(400).json({ msg: e.message });
+  }
+};
+
+export const uploadImage = async (req, res) => {
+  try {
+    // Assuming 'path' is the path to your image file
+
+    const imagePath = `${req.file.path}`;
+
+    // Read the image file as a Buffer
+    fs.readFile(imagePath, (err, data) => {
+      if (err) {
+        console.error("Error reading image file:", err);
+        return;
+      }
+
+      const imageBuffer = Buffer.from(data);
+      console.log(imageBuffer);
+
+      // Now you can use the 'imageBuffer' to store in your MySQL database
+      // Make sure to follow your MySQL library's documentation for storing binary data in the database.
+    });
+
+    console.log(req.file);
+  } catch (error) {}
+};

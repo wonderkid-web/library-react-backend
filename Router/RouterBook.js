@@ -13,6 +13,9 @@ import {
   getAllLoan,
   getUserById,
   uploadImage,
+  loaningBook,
+  getAttributeData,
+  getReturn
 } from "../Controller/BookController.js";
 // import { getUser } from "../Controller/Test.js";
 const router = express.Router();
@@ -39,6 +42,7 @@ router.get("/available", getAvailableBook);
 
 router.get("/borrower/:name", borrowedProfile);
 router.post("/borrowing", borrowingBook);
+router.post("/loaning", loaningBook)
 router.get("/loan", getAllLoan);
 
 router.post("/change-status", changeStatus);
@@ -47,6 +51,10 @@ router.post("/signup", createUser);
 router.get("/user", getAllUser);
 router.get("/userId", getUserById);
 
+router.get("/return", getReturn)
+
 router.post("/upload/image", upload, uploadImage);
+
+router.get("/getAttributeData", getAttributeData)
 
 export default router;

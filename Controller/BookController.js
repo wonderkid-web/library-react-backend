@@ -1,4 +1,5 @@
 import fs from "fs";
+import moment from "moment";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -6,12 +7,12 @@ const prisma = new PrismaClient();
 // Buku dari API
 export const getApiBook = async (req, res) => {
   try {
-    const data = await fetch('https://www.dbooks.org/api/recent')
+    const data = await fetch("https://www.dbooks.org/api/recent");
     if (res.status(200)) {
       res.json({
         status: "Sukses",
         total: data.length,
-        data
+        data,
       });
     }
   } catch (e) {
@@ -101,10 +102,11 @@ export const borrowingBook = async (req, res) => {
 
 export const borrowedProfile = async (req, res) => {
   const { name } = req.params;
+
   try {
-    const data = await prisma.borrowedBook.findMany({
+    const data = await prisma.borrow.findMany({
       where: {
-        borrower: name,
+        name: name,
       },
     });
     res.status(200).json(data);
@@ -116,7 +118,11 @@ export const borrowedProfile = async (req, res) => {
 
 export const getAllLoan = async (req, res) => {
   try {
-    const data = await prisma.borrow.findMany();
+    const data = await prisma.borrow.findMany({
+      include: {
+        books: true,
+      },
+    });
 
     if (data) {
       res.status(200).json(data);
@@ -126,29 +132,55 @@ export const getAllLoan = async (req, res) => {
   }
 };
 
-export const loaningBook = async (req, res) => {
-  try {
-    const data = await prisma.book.findMany();
+// export const loaningBook = async (req, res) => {
+//   try {
+//     const data = await prisma.book.findMany();
 
-    if (data) {
-      res.status(200).json(data);
-    }
-  } catch (e) {
-    res.status(400).json({ msg: e.message });
-  }
-};
+//     if (data) {
+//       res.status(200).json(data);
+//     }
+//   } catch (e) {
+//     res.status(400).json({ msg: e.message });
+//   }
+// };
 
 export const changeStatus = async (req, res) => {
-  const { idBook } = req.body;
+  const { idLoan, idBook } = req.body;
+
   try {
-    const data = await prisma.borrowedBook.update({
+    const data = await prisma.borrow.update({
       where: {
-        idBook,
+        id: Number(idLoan),
       },
       data: {
         status: false,
+        books: {
+          update: {
+            where: {
+              id: Number(idBook),
+            },
+            data: {
+              stock: {
+                increment: 1,
+              },
+            },
+          },
+        },
       },
     });
+
+    await prisma.return.create({
+      data:{
+        return_at: new Date(),
+        loan:{
+          connect:{
+            id: Number(idLoan)
+          }
+        }
+      }
+    })
+
+
   } catch (e) {
     console.log(e.message);
   }
@@ -178,7 +210,7 @@ export const getAllUser = async (req, res) => {
   try {
     const allUser = await prisma.user.findMany({
       include: {
-        books: true,
+        loans: true,
       },
     });
 
@@ -273,3 +305,100 @@ export const uploadImage = async (req, res) => {
     console.log(req.file);
   } catch (error) {}
 };
+
+export const loaningBook = async (req, res) => {
+  const { id, email } = req.body;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    await prisma.book.update({
+      where: {
+        id,
+      },
+      data: {
+        stock: {
+          decrement: 1,
+        },
+      },
+    });
+
+    await prisma.user.update({
+      where: {
+        email,
+      },
+      data: {
+        loans: {
+          create: {
+            name: user.name,
+            done_at: moment().add(3, "days").format(),
+            books: {
+              connect: {
+                id,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.status(200);
+  } catch (e) {
+    res.status(401).json({ msg: e.message });
+  }
+};
+
+export const getReturn = async (req, res) => {
+  try {
+    const data = await prisma.return.findMany({
+     include:{
+      loan:true
+     }
+    });
+
+    if (data) {
+      res.status(200).json({
+        return: data,
+      });
+    }
+  } catch (e) {
+    res.status(401).json({ msg: e.message });
+  }
+};
+
+
+export const getAttributeData = async (req, res) =>{
+  try{
+    const countUser = await prisma.user.findMany()
+    const countLoan = await prisma.borrow.findMany()
+    const countReturn = await prisma.return.findMany()
+    const countBook = await prisma.book.findMany()
+    const lastLoaning = await prisma.borrow.findFirst({
+      orderBy:{
+        id: 'desc'
+      }
+    })
+    const lastReturning = await prisma.return.findFirst({
+      orderBy:{
+        id: 'desc'
+      },
+      include:{
+        loan: true
+      }
+    })
+
+    res.status(200).json({
+      user: countUser.length,
+      loan: countLoan.length,
+      book: countBook.length,
+      return: countReturn.length,
+      last_loaning: lastLoaning,
+      last_returning: lastReturning,
+    })
+  }catch(e){
+    res.status(404).json({msg: e.message})
+  }
+}

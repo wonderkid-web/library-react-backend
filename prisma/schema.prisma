@@ -70,3 +70,9 @@ model Category {
   id       Int    @id @default(autoincrement())
   category String
 }
+
+model Image{
+  id Int @id @default(autoincrement())
+  bookId String
+  path String
+}

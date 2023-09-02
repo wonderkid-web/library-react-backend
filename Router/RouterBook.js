@@ -15,12 +15,13 @@ import {
   uploadImage,
   loaningBook,
   getAttributeData,
-  getReturn
+  getReturn,
+  addImage,
+  getImageByBookId
 } from "../Controller/BookController.js";
-// import { getUser } from "../Controller/Test.js";
+import moment from "moment";
 const router = express.Router();
 
-// const upload = multer({dest: 'public/images/'})
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -28,7 +29,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now();
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+    cb(null, `${moment().format('LLLL')}-${file.originalname}`);
   },
 });
 
@@ -39,6 +40,9 @@ router.get("/book", getAllBorrowedBook);
 router.post("/addBook", createBook);
 router.get("/delete/:id", deleteBookById);
 router.get("/available", getAvailableBook);
+
+router.post('/image', getImageByBookId)
+router.post("/addImage", upload,addImage)
 
 router.get("/borrower/:name", borrowedProfile);
 router.post("/borrowing", borrowingBook);
@@ -52,8 +56,6 @@ router.get("/user", getAllUser);
 router.get("/userId", getUserById);
 
 router.get("/return", getReturn)
-
-router.post("/upload/image", upload, uploadImage);
 
 router.get("/getAttributeData", getAttributeData)
 

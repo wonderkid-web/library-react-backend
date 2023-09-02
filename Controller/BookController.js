@@ -241,23 +241,26 @@ export const getUserById = async (req, res) => {
 export const createBook = async (req, res) => {
   try {
     const { data } = req.body;
-    console.log(data);
-    const sampleBook = await prisma.book.create({
-      data: {
-        title: data.title,
-        authors: data.author,
-        bookId: data.bookId,
-        image: data.image,
-        stock: Number(data.stock),
-        category: data.category,
-      },
-    });
+    // console.log(data);
+    
 
-    if (res.status(200)) {
-      res.status(200).json({
-        status: "Sukses",
-      });
-    }
+    // console.log(req.file)
+    // const sampleBook = await prisma.book.create({
+    //   data: {
+    //     title: data.title,
+    //     authors: data.author,
+    //     bookId: data.bookId,
+    //     image: data.image.name,
+    //     stock: Number(data.stock),
+    //     category: data.category,
+    //   },
+    // });
+
+    // if (res.status(200)) {
+    //   res.status(200).json({
+    //     status: "Sukses",
+    //   });
+    // }
   } catch (e) {
     res.status(404).json({ msg: e.message });
     console.log(e.message);
@@ -400,5 +403,43 @@ export const getAttributeData = async (req, res) =>{
     })
   }catch(e){
     res.status(404).json({msg: e.message})
+  }
+}
+
+
+export const addImage = async(req, res) =>{
+  const {bookId} = req.body
+
+  try{
+    const data = await prisma.image.create({
+      data:{
+        bookId: bookId,
+        path: req.file.filename
+      }
+    })
+
+    if(data){
+      res.status(200).json({msg: data, status: 200})
+    }
+
+  } catch (error) {
+      res.status(404).json({msg: error.message})
+  }
+}
+
+export const getImageByBookId = async (req, res) =>{
+  const {bookId} = req.body
+  try{
+    const data = await prisma.image.findFirst({
+      where:{
+        bookId
+      }
+    })
+
+    if(data){
+      res.status(200).json({path: data})
+    }
+  }catch(e){
+    res.status(401).json({msg: e.message})
   }
 }

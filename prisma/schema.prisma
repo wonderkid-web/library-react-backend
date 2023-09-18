@@ -36,7 +36,7 @@ model Book {
   stock    Int
   borrowId Int?
 
-  borrow Borrow? @relation(fields: [borrowId], references: [id])
+  borrow Borrow? @relation(fields: [borrowId], references: [id] )
 
   @@index([borrowId])
 }

@@ -108,6 +108,9 @@ export const borrowedProfile = async (req, res) => {
       where: {
         name: name,
       },
+      include:{
+        books: true
+      }
     });
     res.status(200).json(data);
   } catch (e) {
@@ -244,23 +247,23 @@ export const createBook = async (req, res) => {
     // console.log(data);
     
 
-    // console.log(req.file)
-    // const sampleBook = await prisma.book.create({
-    //   data: {
-    //     title: data.title,
-    //     authors: data.author,
-    //     bookId: data.bookId,
-    //     image: data.image.name,
-    //     stock: Number(data.stock),
-    //     category: data.category,
-    //   },
-    // });
+    console.log(req.file)
+    const sampleBook = await prisma.book.create({
+      data: {
+        title: data.title,
+        authors: data.author,
+        bookId: data.bookId,
+        image: data.cover,
+        stock: Number(data.stock),
+        category: data.category,
+      },
+    });
 
-    // if (res.status(200)) {
-    //   res.status(200).json({
-    //     status: "Sukses",
-    //   });
-    // }
+    if (res.status(200)) {
+      res.status(200).json({
+        status: "Sukses",
+      });
+    }
   } catch (e) {
     res.status(404).json({ msg: e.message });
     console.log(e.message);

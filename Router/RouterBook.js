@@ -28,10 +28,11 @@ const storage = multer.diskStorage({
     cb(null, "./public/images");
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now();
-    cb(null, `${moment().format('LLLL')}-${file.originalname}`);
+    const date = new Date()
+    cb(null, `${file.originalname}`);
   },
 });
+
 
 const upload = multer({storage}).single('image')
 

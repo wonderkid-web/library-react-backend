@@ -1,6 +1,7 @@
 import fs from "fs";
 import moment from "moment";
 import { PrismaClient } from "@prisma/client";
+import { title } from "process";
 
 const prisma = new PrismaClient();
 
@@ -154,7 +155,7 @@ export const changeStatus = async (req, res) => {
     const data = await prisma.borrow.update({
       where: {
         id: Number(idLoan),
-      },
+      },  
       data: {
         status: false,
         books: {
@@ -183,6 +184,27 @@ export const changeStatus = async (req, res) => {
       }
     })
 
+
+  } catch (e) {
+    console.log(e.message);
+  }
+};
+
+
+export const changeNote = async (req, res) => {
+  const { idLoan, noteType } = req.body;
+
+  try {
+    const data = await prisma.borrow.update({
+      where: {
+        id: Number(idLoan),
+      },  
+      data: {
+        notes: noteType
+      },
+    });
+
+    res.status(200).json(data)
 
   } catch (e) {
     console.log(e.message);
@@ -313,7 +335,7 @@ export const uploadImage = async (req, res) => {
 };
 
 export const loaningBook = async (req, res) => {
-  const { id, email } = req.body;
+  const { id, email, imgURL, title } = req.body;
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -338,7 +360,10 @@ export const loaningBook = async (req, res) => {
       },
       data: {
         loans: {
+
           create: {
+            title: title,
+            coverUrl: imgURL,
             name: user.name,
             done_at: moment().add(3, "days").format(),
             books: {
@@ -411,23 +436,26 @@ export const getAttributeData = async (req, res) =>{
 
 
 export const addImage = async(req, res) =>{
+
   const {bookId} = req.body
 
-  try{
-    const data = await prisma.image.create({
-      data:{
-        bookId: bookId,
-        path: req.file.filename
-      }
-    })
+  console.log(bookId)
 
-    if(data){
-      res.status(200).json({msg: data, status: 200})
-    }
+  // try{
+  //   const data = await prisma.image.create({
+  //     data:{
+  //       bookId: bookId,
+  //       path: req.file.filename
+  //     }
+  //   })
 
-  } catch (error) {
-      res.status(404).json({msg: error.message})
-  }
+  //   if(data){
+  //     res.status(200).json({msg: data, status: 200})
+  //   }
+
+  // } catch (error) {
+  //     res.status(404).json({msg: error.message})
+  // }
 }
 
 export const getImageByBookId = async (req, res) =>{
@@ -444,5 +472,18 @@ export const getImageByBookId = async (req, res) =>{
     }
   }catch(e){
     res.status(401).json({msg: e.message})
+  }
+}
+
+export const cleanAll = async (req, res) =>{
+  try{
+    // await prisma.book.deleteMany()
+    // await prisma.borrow.deleteMany()
+    const data = await prisma.return.deleteMany()
+    
+    res.status(200).json(data)
+
+  }catch(e){
+    res.status(400).json({msg: e.message})
   }
 }

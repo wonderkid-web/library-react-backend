@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -36,7 +36,7 @@ model Book {
   stock    Int
   borrowId Int?
 
-  borrow Borrow? @relation(fields: [borrowId], references: [id] )
+  borrow Borrow? @relation(fields: [borrowId], references: [id])
 
   @@index([borrowId])
 }
@@ -47,13 +47,15 @@ model Borrow {
   borrow_at DateTime @default(now())
   done_at   DateTime
   books     Book[]
+  coverUrl  String?
+  title     String?
   userId    Int?
-  returnId Int?
+  returnId  Int?
+  notes     String?
   status    Boolean  @default(true)
 
-  user User? @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
   return Return? @relation(fields: [returnId], references: [id])
-
 
   @@index([userId])
   @@index([returnId])
@@ -71,8 +73,8 @@ model Category {
   category String
 }
 
-model Image{
-  id Int @id @default(autoincrement())
+model Image {
+  id     Int    @id @default(autoincrement())
   bookId String
-  path String
+  path   String
 }

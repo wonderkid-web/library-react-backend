@@ -17,7 +17,9 @@ import {
   getAttributeData,
   getReturn,
   addImage,
-  getImageByBookId
+  getImageByBookId,
+  cleanAll,
+  changeNote
 } from "../Controller/BookController.js";
 import moment from "moment";
 const router = express.Router();
@@ -51,6 +53,7 @@ router.post("/loaning", loaningBook)
 router.get("/loan", getAllLoan);
 
 router.post("/change-status", changeStatus);
+router.post("/change-note", changeNote);
 
 router.post("/signup", createUser);
 router.get("/user", getAllUser);
@@ -59,5 +62,7 @@ router.get("/userId", getUserById);
 router.get("/return", getReturn)
 
 router.get("/getAttributeData", getAttributeData)
+
+router.get('/clean', cleanAll)
 
 export default router;

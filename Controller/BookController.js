@@ -175,7 +175,6 @@ export const changeStatus = async (req, res) => {
 
     await prisma.return.create({
       data:{
-        return_at: new Date(),
         loan:{
           connect:{
             id: Number(idLoan)
@@ -441,21 +440,21 @@ export const addImage = async(req, res) =>{
 
   console.log(bookId)
 
-  // try{
-  //   const data = await prisma.image.create({
-  //     data:{
-  //       bookId: bookId,
-  //       path: req.file.filename
-  //     }
-  //   })
+  try{
+    const data = await prisma.image.create({
+      data:{
+        bookId: bookId,
+        path: req.file.filename
+      }
+    })
 
-  //   if(data){
-  //     res.status(200).json({msg: data, status: 200})
-  //   }
+    if(data){
+      res.status(200).json({msg: data, status: 200})
+    }
 
-  // } catch (error) {
-  //     res.status(404).json({msg: error.message})
-  // }
+  } catch (error) {
+      res.status(404).json({msg: error.message})
+  }
 }
 
 export const getImageByBookId = async (req, res) =>{

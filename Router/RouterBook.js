@@ -21,7 +21,6 @@ import {
   cleanAll,
   changeNote
 } from "../Controller/BookController.js";
-import moment from "moment";
 const router = express.Router();
 
 
@@ -30,7 +29,6 @@ const storage = multer.diskStorage({
     cb(null, "./public/images");
   },
   filename: (req, file, cb) => {
-    const date = new Date()
     cb(null, `${file.originalname}`);
   },
 });

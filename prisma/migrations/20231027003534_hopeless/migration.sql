@@ -40,8 +40,11 @@ CREATE TABLE "Borrow" (
     "name" TEXT NOT NULL,
     "borrow_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "done_at" TIMESTAMP(3) NOT NULL,
+    "coverUrl" TEXT,
+    "title" TEXT,
     "userId" INTEGER,
     "returnId" INTEGER,
+    "notes" TEXT,
     "status" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Borrow_pkey" PRIMARY KEY ("id")
